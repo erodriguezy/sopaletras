@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sopa de Letras 15×15 — Valores (cuadrícula fija)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>🧩 Sopa de Letras — Valores</h1>
+      <div class="controls">
+        <button id="loadPresetBtn" class="secondary" title="Pega 15 líneas de 15 letras">Cargar cuadrícula</button>
+        <button id="regenBtn">Usar predefinida</button>
+        <button id="validateBtn" class="success">Validar selección</button>
+        <button id="clearBtn" class="secondary">Limpiar selección</button>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <div id="grid" class="grid" aria-label="Tablero 15x15"></div>
+
+      <aside class="side">
+        <h2>Palabras a encontrar</h2>
+        <div id="progress" class="progress">0 / 15 encontradas</div>
+        <p class="hint">
+          Marca manualmente las letras haciendo clic (vuelves a hacer clic para desmarcar).
+          Deben formar una línea recta y contigua (horizontal, vertical o diagonal).
+          Luego pulsa <strong>Validar selección</strong>.
+        </p>
+        <div id="wordlist" class="wordlist"></div>
+        <p class="hint">Al encontrar todas, se revelará el mensaje secreto.</p>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modal final -->
+  <div id="winModal" class="modal" role="dialog" aria-modal="true" aria-label="Mensaje secreto">
+    <div class="modal-card">
+      <span class="badge">¡Felicitaciones!</span>
+      <div id="secret" class="secret">ROWZWFNS</div>
+      <div class="sub">Has completado la sopa. Comparte el código con tu equipo y continúa el rally.</div>
+      <button id="closeModal">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
