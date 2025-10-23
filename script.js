@@ -1,46 +1,52 @@
 (() => {
-  const GRID_SIZE = 15;
+  const GRID_SIZE = 12;
   const DISPLAY_WORDS = [
-    "Respeto","Honestidad","Solidaridad","Responsabilidad","Perdón",
-    "Generosidad","Paciencia","Tolerancia","Justicia","Esperanza",
-    "Alegría","Compasión","Gratitud","Perseverancia","Lealtad"
+    "HONESTIDAD",
+    "HUMILDAD",
+    "PACIENCIA",
+    "LEALTAD",
+    "RESPETO",
+    "SINCERIDAD",
+    "COMPROMISO",
+    "OBEDIENCIA",
+    "EMPATIA",
+    "FIDELIDAD"
   ];
   const SECRET_MESSAGE = "ROWZWFNS";
 
-  // === CUADRÍCULA PREDEFINIDA (pon aquí tus 15 filas exactas) ===
-  // MAYÚSCULAS, sin tildes, 15 letras por fila, 15 filas.
-  let GRID_PRESET = [    
-    "NHNISOLIDARIDAD",
-    "TOPAICNARELOTAG",
-    "INOESDPAESEPDAE",
-    "EEECREAAEILININ",
-    "ASENSSDTCILOORE",
-    "ATCEGPEOLISTUGR",
-    "IINAEEEVBAEELEO",
-    "CDFAOROAEPENULS",
-    "IAIDDASOSROLCAI",
-    "TDPASNCEDPAENID",
-    "SEEAOZRFNRANCRA", 
-    "UELPEAASEPPRCDD", 
-    "JDSNNOISAPMOCIS", 
-    "CEDUPERDONMESLA", 
-    "RPEVOEDUTITARGI"
+  // === CUADRÍCULA PREDEFINIDA 12x12 (pon aquí tus 12 filas exactas) ===
+  // MAYÚSCULAS, sin tildes, 12 letras por fila, 12 filas.
+  // Reemplaza las X por tus letras si quieres usar una cuadrícula fija.
+ let GRID_PRESET = [    
+    "HRESPETOERCO",
+    "UAQPUEMOUUSB",
+    "MIHQASBPGIEE",
+    "ISDOHCAOMNVD",
+    "LOLFNIIOROSI",
+    "DDWETEREXVGE",
+    "AEKAAPSVNARN",
+    "DEPBMLITOCKC",
+    "SMROYATYIEII",
+    "EPCPAPEAADEA",
+    "FIDELIDADVAK", 
+    "ASINCERIDADD"     
    ];
 
 
   // ==== Utilidades ====
   const normalize = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase();
   const WORDS = DISPLAY_WORDS.map(w => ({ display: w, plain: normalize(w) }));
+  const TOTAL = WORDS.length;
 
   // ==== Estado ====
-  let grid = [];            // matriz 15x15 de letras
+  let grid = [];            // matriz 12x12 de letras
   let cells = [];           // nodos DOM de celdas
   let found = new Set();    // palabras encontradas (sin tildes)
-  let selected = new Set(); // índices lineales de celdas seleccionadas (y*15+x)
+  let selected = new Set(); // índices lineales de celdas seleccionadas (y*12+x)
 
   // ==== DOM ====
   const gridEl = document.getElementById('grid');
-  const listEl = document.getElementById('wordlist');
+  const listEl = document.getElementById('wordlist');   // ahora muestra solo correctas
   const progressEl = document.getElementById('progress');
   const modal = document.getElementById('winModal');
   const closeModal = document.getElementById('closeModal');
@@ -66,33 +72,34 @@
     setTimeout(()=> toastEl.classList.remove('show'), ms);
   }
 
-  // ==== Lista lateral ====
-  function renderList(){
-    listEl.innerHTML = '';
-    WORDS.forEach(w=>{
-      const item = document.createElement('div');
-      item.className = 'word';
-      item.dataset.word = w.plain;  // clave interna sin tildes
-      item.textContent = w.display; // visible con tildes
-      listEl.appendChild(item);
-    });
+  // ==== Lista lateral (revelada dinámicamente) ====
+  function clearList(){
+    if (listEl) listEl.innerHTML = ""; // inicia vacía
+  }
+  function revealWord(display, plain){
+    if ([...listEl.children].some(el => el.dataset.word === plain)) return;
+    const item = document.createElement('div');
+    item.className = 'word found';   // ya entra como encontrada
+    item.dataset.word = plain;
+    item.textContent = display;
+    listEl.appendChild(item);
   }
   function updateProgress(){
-    if (progressEl) progressEl.textContent = `${found.size} / ${WORDS.length} encontradas`;
+    if (progressEl) progressEl.textContent = `${found.size} / ${TOTAL} encontradas`;
   }
 
   // ==== Construcción desde preset ====
   function buildFromPreset(){
-    // Validación del preset
+    // Validación del preset 12x12
     if (!Array.isArray(GRID_PRESET) || GRID_PRESET.length !== GRID_SIZE ||
         GRID_PRESET.some(r => typeof r !== 'string' || r.length !== GRID_SIZE || /[^A-Z]/.test(r))) {
-      showToast('Preset inválido: 15 líneas, 15 letras A–Z por línea.');
+      showToast('Preset inválido: 12 líneas, 12 letras A–Z por línea.');
       return;
     }
     // Reset estado
     found.clear();
     selected.clear();
-    renderList();
+    clearList();
     updateProgress();
 
     // Cargar en grid
@@ -105,13 +112,13 @@
   function onLoadPresetClick(){
     const example = GRID_PRESET.join("\n");
     const txt = prompt(
-      "Pega tus 15 filas (15 letras por línea, solo A–Z, sin tildes):",
+      "Pega tus 12 filas (12 letras por línea, solo A–Z, sin tildes):",
       example
     );
     if (!txt) return;
     const rows = txt.split(/\r?\n/).map(r => normalize(r.trim()));
     if (rows.length !== GRID_SIZE || rows.some(r => r.length !== GRID_SIZE || /[^A-Z]/.test(r))) {
-      showToast("Debe haber 15 líneas, 15 letras A–Z cada una (sin tildes).");
+      showToast("Debe haber 12 líneas, 12 letras A–Z cada una (sin tildes).");
       return;
     }
     GRID_PRESET = rows;
@@ -139,7 +146,6 @@
 
   // ==== Selección manual (toggle) ====
   function toggleSelect(idx, el){
-    // Permitir seleccionar/deseleccionar aunque sea .found (sin flash).
     if (selected.has(idx)) {
       selected.delete(idx);
       el.classList.remove('selected');
@@ -204,16 +210,14 @@
       return;
     }
 
-    // 5) Marcar encontrada (tablero + lista)
+    // 5) Marcar encontrada (tablero + revelar en lista)
     found.add(hit.plain);
     path.forEach(p => cells[p.idx].classList.add('found'));
-    const item = document.querySelector(`.word[data-word="${hit.plain}"]`);
-    if (item) item.classList.add('found');
-
+    revealWord(hit.display, hit.plain);
     clearSelection();
     updateProgress();
 
-    if (found.size === WORDS.length) {
+    if (found.size === TOTAL) {
       document.getElementById('secret').textContent = SECRET_MESSAGE;
       modal.classList.add('show');
     } else {
